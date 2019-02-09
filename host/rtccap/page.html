@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RTC Capture</title>
+  </head>
+  <body>
+    local desc: <input id="localDesc" type="text" readonly><br />
+    remote desc: <input id="remoteDesc" type="text"><button onclick="window.rtcStart()">RTC Start</button><br />
+    <script>
+      // Helpers
+      const log = console.log // TODO: report back
+      const err = console.error // TODO: report back
+
+      // RTC setup
+      const pc = new RTCPeerConnection()
+      pc.onconnectionstatechange = e => log('RTC state change', e)
+      // Set local desc when complete
+      pc.onicecandidate = event => {
+        if (event.candidate === null) {
+          document.getElementById('localDesc').value = btoa(JSON.stringify(pc.localDescription))
+        }
+      }
+      // Negotiate w/ local desc
+      pc.onnegotiationneeded = e => pc.createOffer().then(d => pc.setLocalDescription(d)).catch(err)
+      // Start RTC after remote desc present
+      window.rtcStart = () => {
+        const remoteDesc = document.getElementById('remoteDesc').value
+        if (remoteDesc === '') {
+          err('Missing remote desc')
+        } else try {
+          pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(atob(remoteDesc))))
+        } catch (e) {
+          err(e)
+        }
+      }
+
+      // Start screen capture now
+      const mediaOpts = { video: { cursor: 'always', displaySurface: 'monitor' }, audio: false }
+      navigator.mediaDevices.getDisplayMedia(mediaOpts).then(s => pc.addStream(s)).catch(err)
+    </script>
+  </body>
+</html>
