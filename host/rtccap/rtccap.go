@@ -234,19 +234,30 @@ func (r *RTCCap) startTrack() (err error) {
 	return err
 }
 
-func (r *RTCCap) Close() (err error) {
-	// Just return last error
+func (r *RTCCap) Close() error {
+	errs := []error{}
 	if r.chrome != nil {
-		err = r.chrome.Close()
+		if err := r.chrome.Close(); err != nil {
+			errs = append(errs, err)
+		}
 	}
 	if r.localhostWebserver != nil {
-		err = r.localhostWebserver.Close()
+		if err := r.localhostWebserver.Close(); err != nil {
+			errs = append(errs, err)
+		}
 	}
 	if r.peerConn != nil {
-		// TODO: Hanging, ref: https://github.com/pions/webrtc/issues/363
-		go func() { r.peerConn.Close() }()
+		if err := r.peerConn.Close(); err != nil {
+			errs = append(errs, err)
+		}
 	}
-	return
+	if len(errs) == 0 {
+		return nil
+	} else if len(errs) == 1 {
+		return errs[0]
+	} else {
+		return nil
+	}
 }
 
 func randString(len int) string {
