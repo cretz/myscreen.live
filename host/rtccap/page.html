@@ -4,39 +4,41 @@
     <title>RTC Capture</title>
   </head>
   <body>
-    local desc: <input id="localDesc" type="text" readonly><br />
-    remote desc: <input id="remoteDesc" type="text"><button onclick="window.rtcStart()">RTC Start</button><br />
+    mypc.icu screen cap
     <script>
-      // Helpers
-      const log = console.log // TODO: report back
-      const err = console.error // TODO: report back
+      // We expect the following to be bound from the other side:
+      //  logErr(s: string): void
+      //  logInfo(s: string): void
+      //  getAnswer(offer: sdp): sdp?
+      // We expose the following from this side:
+      //  run(peerIdentity: string)
 
-      // RTC setup
-      const pc = new RTCPeerConnection()
-      pc.onconnectionstatechange = e => log('RTC state change', e)
-      // Set local desc when complete
-      pc.onicecandidate = event => {
-        if (event.candidate === null) {
-          document.getElementById('localDesc').value = btoa(JSON.stringify(pc.localDescription))
-        }
-      }
-      // Negotiate w/ local desc
-      pc.onnegotiationneeded = e => pc.createOffer().then(d => pc.setLocalDescription(d)).catch(err)
-      // Start RTC after remote desc present
-      window.rtcStart = () => {
-        const remoteDesc = document.getElementById('remoteDesc').value
-        if (remoteDesc === '') {
-          err('Missing remote desc')
-        } else try {
-          pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(atob(remoteDesc))))
-        } catch (e) {
-          err(e)
-        }
-      }
+      function run(peerIdentity) {
+        // RTC setup, intentionally setting no servers for local only
+        const pc = new RTCPeerConnection({ peerIdentity: peerIdentity })
+        pc.onconnectionstatechange = e => logInfo('RTC browser state change: ' + pc.iceConnectionState)
 
-      // Start screen capture now
-      const mediaOpts = { video: { cursor: 'always', displaySurface: 'monitor' }, audio: false }
-      navigator.mediaDevices.getDisplayMedia(mediaOpts).then(s => pc.addStream(s)).catch(err)
+        // Offer is complete when no candidate, ask for answer
+        pc.onicecandidate = event => {
+          if (event.candidate === null) {
+            getAnswer(pc.localDescription).then(answer => {
+              if (answer) {
+                pc.setRemoteDescription(new RTCSessionDescription(answer)).
+                  catch(e => logErr('Failed setting remote desc: ' + e))
+              }
+            }).catch(console.error)
+          }
+        }
+
+        // Negotiate w/ local desc
+        pc.onnegotiationneeded = e =>
+          pc.createOffer().then(d => pc.setLocalDescription(d)).catch(e => logErr('Failed setting local desc: ' + e))
+
+        // Start screen capture now
+        const mediaOpts = { video: { cursor: 'always', displaySurface: 'monitor' }, audio: false }
+        navigator.mediaDevices.getDisplayMedia(mediaOpts).
+          then(s => pc.addStream(s)).catch(e => logErr('Failed getting media: ' + e))
+      }
     </script>
   </body>
 </html>
