@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack --mode=development",
+    "dev": "webpack --mode=development -w",
     "build": "webpack --mode=production"
   },
   "keywords": [],
@@ -14,5 +14,8 @@
     "typescript": "^3.3.3",
     "webpack": "^4.29.3",
     "webpack-cli": "^3.2.3"
+  },
+  "dependencies": {
+    "webrtc-adapter": "^7.2.0"
   }
 }

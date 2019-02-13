@@ -3,7 +3,20 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>My PC, I see you!</title>
-    <script src="index.js"></script>
+    <style type="text/css">
+      button {
+        border: 0;
+        cursor: pointer;
+      }
+
+      .button-link {
+        background-color: transparent;
+        text-decoration: underline;
+        font-size: 1rem;
+        font-family: Open Sans,Arial;
+        padding: 0;
+      }
+    </style>
   </head>
   <body style="margin: 0; font-family: Open Sans,Arial; background-color: #fefefe; color: #454545">
     
@@ -38,10 +51,10 @@
         </div>
 
         <div style="padding: 0.75em; min-width: 40vw">
-          <div style="font-size: 1.5em; font-weight: bold">Connect to another screen</div>
+          <div style="font-size: 1.5em; font-weight: bold">Share a view of my screen</div>
           <div style="display: flex; justify-content: space-around; flex-wrap: wrap">
             <div style="margin-left: 0.4em; flex: 1; color: gray; white-space: nowrap">No download needed, click and share away.</div>
-            <a href="#" style="margin: 0.4em; color: #454545; text-decoration: none; background-color: #acc6ef; padding: 0.6em 3em; font-weight: bold; font-size: 1.5em; border-radius: 0.25em">Start Sharing</a>
+            <a href="#host" style="margin: 0.4em; color: #454545; text-decoration: none; background-color: #acc6ef; padding: 0.6em 3em; font-weight: bold; font-size: 1.5em; border-radius: 0.25em">Start Sharing</a>
           </div>
         </div>
 
@@ -61,7 +74,7 @@
       </div>
       <div style="padding: 0.2em; background-color: #747a74; color: lightgray; display: flex; justify-content: space-evenly; flex-wrap: wrap">
         <div>
-          <a href="https://mypc.icu"  style="color: lightgray">mypc&middot;icu</a> -
+          <a href="https://mypc.icu" style="color: lightgray">mypc.icu</a> -
           made with indifference by <a href="#" style="color: lightgray">cretz</a>
         </div>
         <div>
@@ -74,23 +87,64 @@
 
     <div id="client" style="display: none; flex-flow: column nowrap; min-height: 100vh">
       <div style="display: flex; padding: 0.3em; text-align: center; background-color: #6a776a">
-        <a href="#" style="color: #dddddd; text-decoration: none; font-size: 2em; font-weight: bold">mypc&middot;icu</a>
+        <a href="." style="color: #dddddd; text-decoration: none; font-size: 2em; font-weight: bold">mypc.icu</a>
         <div style="flex: 1; text-align: center">
           <button style="background-color: transparent; color: #dddddd; font-size: 2em;">Settings &#9660;</button>
         </div>
       </div>
     </div>
 
-    <div id="host" style="display: flex; flex-flow: column nowrap; min-height: 100vh">
+    <div id="host" style="display: none; flex-flow: column nowrap; min-height: 100vh">
       <div style="display: flex; padding: 0.3em; text-align: center; background-color: #6a776a">
-        <a href="#" style="color: #dddddd; text-decoration: none; font-size: 2em; font-weight: bold">mypc&middot;icu</a>
-        <div style="flex: 1; align-self: center; text-align: center; color: #dddddd">
+        <a href="." style="color: #dddddd; text-decoration: none; font-size: 2em; font-weight: bold">mypc.icu</a>
+        <div style="margin-left: 1em; align-self: center; color: #dddddd">
           Share Your Screen
         </div>
       </div>
-      <div style="padding: 0.2em">
-        <div style="font-size: 2em; font-weight: bold">Screen Share Settings:</div>
+      <div id="hostSettings" style="flex: 1; display: flex; flex-flow: column; align-items: center">
+        <div style="padding: 0.2em; min-width: 40vw">
+          <div style="font-size: 2em; font-weight: bold">Screen Share Settings</div>
+        </div>
+        <div style="padding: 1em; display: flex; flex-flow: column nowrap; min-width: 40vw">
+          <div style="margin: 1em">
+            <div style="display: flex">
+              <label for="hostPhrase" style="font-weight: bold">Host Phrase:</label>
+              <input id="hostPhrase" type="text" minlength="3" style="flex: 1; margin-left: 1em" required>
+            </div>
+            <div>
+              <div style="margin-left: 0.4em; color: gray">
+                Enter a unique phrase above, use the one we have generated for you, or 
+                <button id="hostRegenerate" class="button-link" style="color: gray">regenerate</button>
+                another.
+                <br />
+                Once shared, others will access your screen at <span id="hostPotentialUrl"></span>
+              </div>
+            </div>
+          </div>
+          <div style="margin: 1em">
+            <div style="display: flex">
+              <label for="hostPassword" style="font-weight: bold">Password:</label>
+              <input id="hostPassword" type="password" style="flex: 1; margin-left: 1em">
+            </div>
+            <div>
+              <div style="margin-left: 0.4em; color: gray">
+                Optionally enter a password. Usually not needed for short screen share.
+              </div>
+            </div>
+          </div>
+          <div style="margin: 3em 0; text-align: center">
+            <button id="hostChooseScreen" href="#" style="border: 0; color: #454545; text-decoration: none; background-color: #acc6ef; padding: 0.6em; font-weight: bold; font-size: 1.5em; border-radius: 0.25em">Choose Screen and Share</a>
+          </div>
+        </div>
+      </div>
+      <div id="hostWorking" style="display: none; flex-flow: column; align-items: center">
+        <h3>Please wait while setting up screen capture...</h3>
+      </div>
+      <div id="hostSharing" style="display: none; flex-flow: column; align-items: center">
+        <!-- TODO: controls, cancellation/close, etc -->
+        <video id="hostVideo" style="border: 5px solid red; width: 500px"></video>
       </div>
     </div>
+    <script src="index.js"></script>
   </body>
 </html>
