@@ -1,4 +1,4 @@
-/// <reference path="extras.d.ts" />
+/// <reference path="defs.d.ts" />
 
 import adapter from 'webrtc-adapter'
 
@@ -6,7 +6,7 @@ import ClientPage from './clientPage'
 import HomePage from './homePage'
 import HostPage from './hostPage'
 
-namespace mycpuicu {
+namespace myscreenlive {
 
   const clientPage = new ClientPage()
   const homePage = new HomePage()
