@@ -101,9 +101,10 @@
           Share Your Screen
         </div>
       </div>
+      <div id="hostErr" style="display: none; color: red; font-size: 1.5em; font-weight: bold; text-align: center"></div>
       <div id="hostSettings" style="flex: 1; display: flex; flex-flow: column; align-items: center">
         <div style="padding: 0.2em; min-width: 40vw">
-          <div style="font-size: 2em; font-weight: bold">Screen Share Settings</div>
+          <div style="font-size: 2em; font-weight: bold; text-align: center">Screen Share Settings</div>
         </div>
         <div style="padding: 1em; display: flex; flex-flow: column nowrap; min-width: 40vw">
           <div style="margin: 1em">
@@ -133,16 +134,39 @@
             </div>
           </div>
           <div style="margin: 3em 0; text-align: center">
-            <button id="hostChooseScreen" href="#" style="border: 0; color: #454545; text-decoration: none; background-color: #acc6ef; padding: 0.6em; font-weight: bold; font-size: 1.5em; border-radius: 0.25em">Choose Screen and Share</a>
+            <button id="hostChooseScreen" href="#" style="border: 0; color: #454545; text-decoration: none; background-color: #acc6ef; padding: 0.6em; font-weight: bold; font-size: 1.5em; border-radius: 0.25em">Choose Screen and Share</button>
           </div>
         </div>
       </div>
-      <div id="hostWorking" style="display: none; flex-flow: column; align-items: center">
+      <div id="hostWorking" style="display: none; flex-flow: column; align-items: center; text-align: center">
         <h3>Please wait while setting up screen capture...</h3>
       </div>
       <div id="hostSharing" style="display: none; flex-flow: column; align-items: center">
-        <!-- TODO: controls, cancellation/close, etc -->
-        <video id="hostVideo" style="border: 5px solid red; width: 500px"></video>
+        <div style="padding: 0.2em; min-width: 40vw">
+          <div style="font-size: 2em; font-weight: bold; text-align: center">Sharing Screen</div>
+        </div>
+        <div style="padding: 1em; display: flex">
+          <div style="display: flex; flex-flow: column nowrap; min-width: 40vw">
+            <div style="padding: 1em">
+              <div style="font-size: 1.5em; font-weight: bold">URL for clients to connect to:</div>
+              <div style="margin-left: 1em">
+                <a id="hostShareUrl" style="font-size: 1.5em; font-weight: bold"></a>
+                <br />
+                <div style="color: gray">
+                  # of connected clients: <span id="hostShareClientCount"></span>
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-evenly">
+              <button id="hostSharePause" href="#" style="border: 0; color: #454545; text-decoration: none; background-color: #acc6ef; padding: 0.6em; font-weight: bold; font-size: 1.5em; border-radius: 0.25em">Pause Video</button>
+              <button id="hostShareStop" href="#" style="border: 0; color: #454545; text-decoration: none; background-color: #acc6ef; padding: 0.6em; font-weight: bold; font-size: 1.5em; border-radius: 0.25em">Stop Sharing</button>
+            </div>
+          </div>
+          <div style="display: flex; flex-flow: column nowrap; align-items: center">
+            <h4>Your screen</h4>
+            <video id="hostShareVideo" style="width: 40vw"></video>
+          </div>
+        </div>
       </div>
     </div>
     <script src="index.js"></script>

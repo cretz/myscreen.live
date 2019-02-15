@@ -1,20 +1,14 @@
 
 import nacl from 'tweetnacl'
 import util from 'tweetnacl-util'
-
-function concatBytes(a: Uint8Array, b: Uint8Array) {
-  const ret = new Uint8Array(a.length + b.length)
-  ret.set(a)
-  ret.set(b, a.length)
-  return ret
-}
+import words from './words.json'
 
 export interface KeyPair {
   publicKey: Uint8Array
   privateKey: Uint8Array
 }
 
-interface OfferResponse {
+export interface OfferResponse {
   offer: RTCSessionDescriptionInit
   hostPublicKey: Uint8Array
 }
@@ -32,6 +26,19 @@ export function answerDecrypted(enc: string, myPriv: Uint8Array, theirPub: Uint8
 export function answerEncrypted(answer: RTCSessionDescriptionInit, myPriv: Uint8Array, theirPub: Uint8Array) {
   // sdp boxed
   return util.encodeBase64(rtcSdpEncrypted(answer, myPriv, theirPub))
+}
+
+function concatBytes(a: Uint8Array, b: Uint8Array) {
+  const ret = new Uint8Array(a.length + b.length)
+  ret.set(a)
+  ret.set(b, a.length)
+  return ret
+}
+
+const debugEnabled = true
+
+export function debug(message?: any, ...optionalParams: any[]) {
+  if (debugEnabled) console.log(message, ...optionalParams)
 }
 
 export function genKeyPair(): KeyPair {
@@ -91,6 +98,17 @@ function offerRequestEncryptionKey(phrase: string, d: Date, password: string) {
   if (password) toHash += '-' + password
   const hash = nacl.hash(util.decodeUTF8(toHash))
   return hash.slice(0, nacl.secretbox.keyLength)
+}
+
+export function randomPhrase() {
+  // Ref: https://blog.asana.com/2011/09/6-sad-squid-snuggle-softly/
+  const arr = new Uint16Array(5)
+  crypto.getRandomValues(arr)
+  return (arr[0] % 31 + 2) + ' ' +
+    words.adjectives[arr[1] % words.adjectives.length] + ' ' +
+    words.nouns[arr[2] % words.nouns.length] + ' ' +
+    words.verbs[arr[3] % words.verbs.length] + ' ' +
+    words.adverbs[arr[4] % words.adverbs.length]
 }
 
 function rtcSdpDecrypted(encBytes: Uint8Array, myPriv: Uint8Array, theirPub: Uint8Array): RTCSessionDescriptionInit | null {
