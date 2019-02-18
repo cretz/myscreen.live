@@ -15,3 +15,18 @@ declare interface MediaDevices {
 declare interface MediaTrackConstraints {
   cursor?: 'always' | 'motion' | 'never'
 }
+
+declare interface Gun {
+  (url: string): Gun
+  get(key: string): Gun
+  on(cb: (data: any, key: string) => void): Gun
+  off(): Gun
+  put(data: any): Gun
+
+  log: { off: boolean }
+}
+
+declare module 'gun/gun' {
+  const Gun: Gun
+  export default Gun
+}

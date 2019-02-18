@@ -6,15 +6,15 @@ import ClientPage from './clientPage'
 import HomePage from './homePage'
 import HostPage from './hostPage'
 
-namespace myscreenlive {
-
+(function() {
   const clientPage = new ClientPage()
   const homePage = new HomePage()
   const hostPage = new HostPage()
 
   function runPage(firstRun: Boolean) {
     if (firstRun) {
-      // TODO: Remove this when we don't have to manually run it
+      // Ref: https://github.com/webrtcHacks/adapter/pull/841
+      // TODO: remove when 66 is shipped: https://bugzilla.mozilla.org/show_bug.cgi?id=1321221
       if (adapter.browserDetails.browser == 'firefox')
         adapter.browserShim!.shimGetDisplayMedia!(window, 'screen')
     } else {
@@ -31,4 +31,4 @@ namespace myscreenlive {
   // Attach the state handler and go
   window.onpopstate = () => runPage(false)
   runPage(true)
-}
+})()

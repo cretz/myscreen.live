@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>My PC, I see you!</title>
+    <title>My screen, live!</title>
     <style type="text/css">
       button {
         border: 0;
@@ -24,13 +24,14 @@
       
       <div style="padding: 2em; text-align: center; background: linear-gradient(180deg, #6a776a 80%, #fefefe); color: #dddddd">
         <div style="font-size: 2.5em; font-weight: bold; display: flex; flex-wrap: wrap; justify-content: center">
-          <span>MY PC,</span><span>&nbsp;</span><span>I SEE YOU</span>
+          <span>MY SCREEN,</span><span>&nbsp;</span><span>LIVE!</span>
         </div>
         <div style="padding-top: 0.5em">Open, free, P2P screen sharing</div>
       </div>
       
       <div style="padding: 1em; text-align: center; font-size: 1.3em">
         I want to...
+        <div style="color: red; font-size: small; font-weight: bold">(this is a work in progress preview)</div>
       </div>
       
       <div style="flex: 1; display: flex; flex-flow: column; align-items: center">
@@ -38,11 +39,11 @@
         <div style="padding: 0.75em; min-width: 40vw">
           <div style="font-size: 1.5em; font-weight: bold">Connect to another screen</div>
           <div style="margin: 0.4em">
-            <input type="text" placeholder="(e.g. 34 angry astronauts)" style="box-sizing: border-box; width: calc(100% - 0.5em); padding: 0.2em; font-size: 1.5em; border: 1px solid #ced4da; border-radius: .25rem;">
+            <input id="homePhrase" type="text" placeholder="(e.g. 25 angry astronauts floating aimlessly)" style="box-sizing: border-box; width: calc(100% - 0.5em); padding: 0.2em; font-size: 1.5em; border: 1px solid #ced4da; border-radius: .25rem;">
           </div>
           <div style="display: flex; justify-content: space-around; flex-wrap: wrap">
             <div style="margin-left: 0.4em; flex: 1; color: gray; white-space: nowrap">No direct link? Enter phrase above.</div>
-            <a href="#" style="margin: 0.4em; color: #454545; text-decoration: none; background-color: #acc6ef; padding: 0.6em 3em; font-weight: bold; font-size: 1.5em; border-radius: 0.25em">Connect</a>
+            <a id="homeConnect" href="#" style="margin: 0.4em; color: #454545; text-decoration: none; background-color: #acc6ef; padding: 0.6em 3em; font-weight: bold; font-size: 1.5em; border-radius: 0.25em">Connect</a>
           </div>
         </div>
 
@@ -65,33 +66,75 @@
         <div style="padding: 0.75em; min-width: 40vw">
           <div style="font-size: 1.5em; font-weight: bold">Give control of my screen</div>
           <div style="display: flex; justify-content: space-around; flex-wrap: wrap">
+            <div style="margin-left: 0.4em; margin-bottom: 3em; flex: 1; color: gray">
+              <i>*This is not yet supported, coming soon*</i>
+            </div>
+            <!--
             <div style="margin-left: 0.4em; flex: 1; color: gray">
               A simple tool must be downloaded.<br />Click the button for [OS], or <a href="#" style="color: #454545">see all downloads</a>.
             </div>
             <a href="#" style="margin: 0.4em; color: #454545; text-decoration: none; background-color: #acc6ef; padding: 0.6em 3em; font-weight: bold; font-size: 1.5em; border-radius: 0.25em">Download</a>
+            -->
           </div>
         </div>
       </div>
       <div style="padding: 0.2em; background-color: #747a74; color: lightgray; display: flex; justify-content: space-evenly; flex-wrap: wrap">
         <div>
-          <a href="https://myscreen.live" style="color: lightgray">myscreen.live</a> -
+          <a href="." style="color: lightgray">myscreen.live</a> -
           made with indifference by <a href="#" style="color: lightgray">cretz</a>
         </div>
         <div>
-          <a href="#" style="padding: 0 0.2em; color: lightgray">FAQ</a> |
-          <a href="#" style="padding: 0 0.2em; color: lightgray">GitHub</a> |
-          <a href="#" style="padding: 0 0.2em; color: lightgray">Privacy</a>
+          <a href="faq.html" style="padding: 0 0.2em; color: lightgray">FAQ</a> |
+          <a href="https://github.com/cretz/myscreen.live" style="padding: 0 0.2em; color: lightgray">GitHub</a> |
+          <a href="privacy.html" style="padding: 0 0.2em; color: lightgray">Privacy</a>
         </div>
       </div>
     </div>
 
-    <div id="client" style="display: none; flex-flow: column nowrap; min-height: 100vh">
+    <div id="client" style="display: none; flex-flow: column nowrap; min-height: 100vh; min-width: 100%; float: left">
       <div style="display: flex; padding: 0.3em; text-align: center; background-color: #6a776a">
         <a href="." style="color: #dddddd; text-decoration: none; font-size: 2em; font-weight: bold">myscreen.live</a>
-        <div style="flex: 1; text-align: center">
-          <button style="background-color: transparent; color: #dddddd; font-size: 2em;">Settings &#9660;</button>
+        <div style="margin-left: 1em; align-self: center;">
+          <button id="clientSettingsButton" style="background-color: transparent; color: #dddddd">Settings &#9650;</button>
         </div>
       </div>
+      <div id="clientSettings" style="display: flex; flex-flow: column; align-self: flex-start; background-color: #eee; border: 3px double">
+        <div style="padding: 0.2em; min-width: 40vw">
+          <div style="font-size: 2em; font-weight: bold; text-align: center">Screen Connect Settings</div>
+        </div>
+        <div style="padding: 1em; display: flex; flex-flow: column nowrap; min-width: 40vw">
+          <div style="margin: 1em">
+            <div style="display: flex">
+              <label for="clientPhrase" style="font-weight: bold">Phrase:</label>
+              <input id="clientPhrase" type="text" minlength="3" style="flex: 1; margin-left: 1em" required>
+            </div>
+            <div>
+              <div style="margin-left: 0.4em; color: gray">
+                Enter the connect phrase above.
+              </div>
+            </div>
+          </div>
+          <div style="margin: 1em">
+            <div style="display: flex">
+              <label for="clientPassword" style="font-weight: bold">Password:</label>
+              <input id="clientPassword" type="password" style="flex: 1; margin-left: 1em">
+            </div>
+            <div>
+              <div style="margin-left: 0.4em; color: gray">
+                If given a password, enter it above.
+              </div>
+            </div>
+          </div>
+          <div style="margin: 1em 0; text-align: center">
+            <button id="clientConnect" style="border: 0; color: #454545; text-decoration: none; background-color: #acc6ef; padding: 0.6em; font-weight: bold; font-size: 1.5em; border-radius: 0.25em">Connect</button>
+          </div>
+        </div>
+      </div>
+      <div id="clientErr" style="display: none; color: red; font-size: 1.5em; font-weight: bold; text-align: center"></div>
+      <div id="clientConnecting" style="display: none; flex-flow: column; align-items: center; text-align: center">
+        <h3>Connecting...</h3>
+      </div>
+      <video id="clientVideo" style="flex: 1; display: none; border: 2px solid red"></video>
     </div>
 
     <div id="host" style="display: none; flex-flow: column nowrap; min-height: 100vh">
@@ -134,7 +177,7 @@
             </div>
           </div>
           <div style="margin: 3em 0; text-align: center">
-            <button id="hostChooseScreen" href="#" style="border: 0; color: #454545; text-decoration: none; background-color: #acc6ef; padding: 0.6em; font-weight: bold; font-size: 1.5em; border-radius: 0.25em">Choose Screen and Share</button>
+            <button id="hostChooseScreen" style="border: 0; color: #454545; text-decoration: none; background-color: #acc6ef; padding: 0.6em; font-weight: bold; font-size: 1.5em; border-radius: 0.25em">Choose Screen and Share</button>
           </div>
         </div>
       </div>

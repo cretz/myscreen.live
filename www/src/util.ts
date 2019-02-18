@@ -13,6 +13,17 @@ export interface OfferResponse {
   hostPublicKey: Uint8Array
 }
 
+type Os = 'windows' | 'linux' | 'mac' | 'ios' | 'android'
+type Browser = 'chrome' | 'firefox' | 'safari' | 'edge' | 'ie'
+
+export const debugEnabled = false
+
+export const suggestedRTCConfig: RTCConfiguration = {
+  // TODO: configurable TURN servers
+  iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+  // TODO: peerIdentity?
+}
+
 export function answerDecrypted(enc: string, myPriv: Uint8Array, theirPub: Uint8Array): RTCSessionDescriptionInit | null {
   try {
     const encBytes = util.decodeBase64(enc)
@@ -35,10 +46,42 @@ function concatBytes(a: Uint8Array, b: Uint8Array) {
   return ret
 }
 
-const debugEnabled = true
+export function clientUrl(phrase: string) {
+  const url = window.location.href
+  const newHash = encodeURIComponent(phraseNormalize(phrase))
+  const hashIndex = url.lastIndexOf('#')
+  if (hashIndex == -1) return url + '#' + newHash
+  return url.substring(0, hashIndex) + '#' + newHash
+}
+
+export function clientUrlDecoded(hash: string) {
+  if (hash.startsWith('#')) hash = hash.substring(1)
+  return phraseDenormalize(decodeURIComponent(hash))
+}
 
 export function debug(message?: any, ...optionalParams: any[]) {
   if (debugEnabled) console.log(message, ...optionalParams)
+}
+
+export function detectPlatform(): { os: Os | null, browser: Browser | null } {
+  // This is all based on reading...tailored to be simple for my needs
+  const platform = window.navigator.platform
+  const userAgent = window.navigator.userAgent
+  // OS first
+  let os: Os | null = null
+  if (platform.startsWith('Mac')) os = 'mac'
+  else if (platform.startsWith('Win')) os = 'windows'
+  else if (platform.startsWith('iPhone') || platform.startsWith('iPad')) os = 'ios'
+  else if (userAgent.indexOf('Android') >= 0) os = 'android'
+  else if (platform.startsWith('Linux')) os = 'linux'
+  // Now browser
+  let browser: Browser | null = null
+  if (userAgent.indexOf('MSIE') >= 0 || userAgent.indexOf('Trident') >= 0) browser = 'ie'
+  else if (userAgent.indexOf('Edge') >= 0) browser = 'edge'
+  else if (userAgent.indexOf('Firefox') >= 0) browser = 'firefox'
+  else if (userAgent.indexOf('Chrom') >= 0) browser = 'chrome'
+  else if (userAgent.indexOf('Safari') >= 0 || userAgent.indexOf('AppleWebKit') >= 0) browser = 'safari'
+  return { os, browser }
 }
 
 export function genKeyPair(): KeyPair {
@@ -94,10 +137,20 @@ export function offerRequestEncrypted(phrase: string, d: Date, pubKey: Uint8Arra
 
 function offerRequestEncryptionKey(phrase: string, d: Date, password: string) {
   // sha512(date + '-' + phrase + ['-' + password]) sliced to key size
-  let toHash = simpleUTCDateString(d) + '-' + phrase
+  let toHash = simpleUTCDateString(d) + '-' + phraseNormalize(phrase)
   if (password) toHash += '-' + password
   const hash = nacl.hash(util.decodeUTF8(toHash))
   return hash.slice(0, nacl.secretbox.keyLength)
+}
+
+function phraseDenormalize(phrase: string) {
+  // We turn all dashes to spaces, good enough for now
+  return phrase.replace(/-/g, ' ')
+}
+
+function phraseNormalize(phrase: string) {
+  // We turn all spaces to dashes, good enough for now
+  return phrase.replace(/ /g, '-')
 }
 
 export function randomPhrase() {
@@ -133,7 +186,7 @@ export function signalRoomName(phrase: string, d: Date) {
   // Since we are starting w/ websocket.in, we only get alnum + '_' + '-'. So
   // we'll take base64(sha512(phrase + '-' + d)), remove padding, replace '+'
   // and '/' with '_' and '-' respectively.
-  let ret = util.encodeBase64(nacl.hash(util.decodeUTF8(phrase + '-' + simpleUTCDateString(d))))
+  let ret = util.encodeBase64(nacl.hash(util.decodeUTF8(phraseNormalize(phrase) + '-' + simpleUTCDateString(d))))
   ret = ret.replace(/=/g, '').replace(/\+/g, '_').replace(/\//g, '-')
   // Only the first 20 chars
   return ret.substring(0, 20)

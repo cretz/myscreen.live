@@ -1,7 +1,7 @@
 /// <reference path="defs.d.ts" />
 
-import { signalRoomName, offerRequestDecrypted, KeyPair, genKeyPair, offerEncrypted, answerDecrypted, debug, randomPhrase } from './util';
-import { PubSub, createDefaultPubSub } from './pubsub';
+import { signalRoomName, offerRequestDecrypted, KeyPair, genKeyPair, offerEncrypted, answerDecrypted, debug, randomPhrase, clientUrl, suggestedRTCConfig } from './util'
+import { PubSub, createDefaultPubSub } from './pubsub'
 
 export default class HostPage {
   elem: HTMLElement
@@ -40,9 +40,9 @@ export default class HostPage {
     document.getElementById('hostRegenerate')!.onclick = () =>
       this.regeneratePhrase()
     this.phraseElem.onchange = () =>
-      document.getElementById('hostPotentialUrl')!.innerText = this.getClientUrl()
+      document.getElementById('hostPotentialUrl')!.innerText = clientUrl(this.phraseElem.value)
     this.phraseElem.oninput = () =>
-      document.getElementById('hostPotentialUrl')!.innerText = this.getClientUrl()
+      document.getElementById('hostPotentialUrl')!.innerText = clientUrl(this.phraseElem.value)
     document.getElementById('hostChooseScreen')!.onclick = async () => {
       try {
         await this.startShare()
@@ -113,19 +113,13 @@ export default class HostPage {
     this.shareVideoElem.load()
   }
 
-  getClientUrl() {
-    const url = window.location.href
-    const newHash = encodeURIComponent(this.phraseElem.value.replace(/ /gi, '-'))
-    return url.substring(0, url.lastIndexOf('#')) + '#' + newHash
-  }
-
   regeneratePhrase() {
     this.phraseElem.value = randomPhrase()
     this.phraseElem.dispatchEvent(new Event('change', { bubbles: true }))
   }
 
   async startShare() {
-    this.shareUrlElem.innerText = this.getClientUrl()
+    this.shareUrlElem.innerText = clientUrl(this.phraseElem.value)
     this.shareUrlElem.href = this.shareUrlElem.innerText
     this.shareClientCountElem.innerText = '0'
     this.settingsElem.style.display = 'none'
@@ -191,7 +185,9 @@ class HostSignaler {
   static async create(stream: MediaStream, phrase: string, d: Date, yearDiff: number, password: string,
       onNewClient: (answer: RTCPeerConnection) => void) {
     d.setUTCFullYear(d.getUTCFullYear() + yearDiff)
-    const signaler = await createDefaultPubSub(signalRoomName(phrase, d))
+    const roomName = signalRoomName(phrase, d)
+    debug('Starting signaler on room ' + roomName)
+    const signaler = await createDefaultPubSub(roomName)
     return new HostSignaler(stream, phrase, d, password, onNewClient, signaler)
   }
 
@@ -208,26 +204,25 @@ class HostSignaler {
       // the offer request and if that fails, we try each pending answer.
       const offerRequest = offerRequestDecrypted(msg, this.phrase, this.date, this.password)
       if (offerRequest != null) {
+        debug('Message was valid offer request', offerRequest)
         this.onOfferRequest(offerRequest)
       } else {
         for (const pendingAnswer of this.pendingAnswers) {
           const answer = answerDecrypted(msg, pendingAnswer.myKey.privateKey, pendingAnswer.theirPub)
           if (answer != null) {
+            debug('Message was valid answer', answer)
             this.onAnswerReceived(pendingAnswer, answer)
-            break
+            return
           }
         }
+        debug('Message was unrecognized')
       }
     })
   }
 
   onOfferRequest(theirPub: Uint8Array) {
     // Create the connection
-    const peerConn = new RTCPeerConnection({
-      // TODO: configurable TURN servers
-      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-      // TODO: peerIdentity?
-    })
+    const peerConn = new RTCPeerConnection(suggestedRTCConfig)
     // Create the answer (add it later) and closer
     const myKey = genKeyPair()
     const pendingAnswer = { myKey, theirPub, peerConn }
@@ -240,7 +235,7 @@ class HostSignaler {
     }
     // We'll log the state changes for now
     peerConn.oniceconnectionstatechange = () => debug('RTC browser state change: ' + peerConn.iceConnectionState)
-    // A null candidate means we're done and can send answer
+    // A null candidate means we're done and can send offer
     peerConn.onicecandidate = event => {
       if (event.candidate === null) {
         if (peerConn.localDescription == null) throw new Error('Missing local desc')
