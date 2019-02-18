@@ -142,7 +142,7 @@ export default class ClientPage {
       createdPeerConn = peerConn
       const peerConnPromise = new Promise<PeerConnAndTrack>(async (resolve, reject) => {
         // We're only gonna wait so long
-        setTimeout(() => reject(new Error('Timeout waiting for to build answer')), maxMsForAnswer)
+        setTimeout(() => reject(new Error('Timeout waiting to build answer')), maxMsForAnswer)
         // We'll log the state changes for now
         peerConn.oniceconnectionstatechange = () => debug('RTC browser state change: ' + peerConn.iceConnectionState)
         // A null candidate means we're done and can send offer

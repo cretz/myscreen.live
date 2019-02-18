@@ -89,6 +89,26 @@ export function genKeyPair(): KeyPair {
   return { publicKey: pair.publicKey, privateKey: pair.secretKey }
 }
 
+export function getScreenCaptureUnsupportedWarning(): string | null {
+  const { os, browser } = detectPlatform()
+  if (os == 'ios') return 'Screen capture not yet supported on iPhone/iPad'
+  if (browser == 'ie') return 'Screen capture not supported on Internet Explorer'
+  if (browser == 'edge') return 'Screen capture not yet supported on Edge'
+  if (browser == 'safari') return 'Screen capture not yet supported on Safari'
+  if (browser == 'firefox' && os == 'android') return 'Screen capture not yet supported on Android Firefox' 
+  if (browser == null) return 'Unknown browser, screen capture may not be supported'
+  return null
+}
+
+export function getScreenConnectionUnsupportedWarning(): string | null {
+  const { os, browser } = detectPlatform()
+  if (browser == 'ie') return 'Screen connection not supported on Internet Explorer'
+  if (browser == 'edge') return 'Screen connection not yet supported on Edge' 
+  if (browser == 'safari') return 'Screen connection with Safari is untested'
+  if (browser == null) return 'Unknown browser, screen connection may not be supported'
+  return null
+}
+
 export function offerDecrypted(enc: string, myPriv: Uint8Array): OfferResponse | null {
   try {
     const encBytes = util.decodeBase64(enc)

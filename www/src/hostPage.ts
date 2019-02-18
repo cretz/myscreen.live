@@ -1,6 +1,6 @@
 /// <reference path="defs.d.ts" />
 
-import { signalRoomName, offerRequestDecrypted, KeyPair, genKeyPair, offerEncrypted, answerDecrypted, debug, randomPhrase, clientUrl, suggestedRTCConfig } from './util'
+import { signalRoomName, offerRequestDecrypted, KeyPair, genKeyPair, offerEncrypted, answerDecrypted, debug, randomPhrase, clientUrl, suggestedRTCConfig, getScreenCaptureUnsupportedWarning } from './util'
 import { PubSub, createDefaultPubSub } from './pubsub'
 
 export default class HostPage {
@@ -35,6 +35,12 @@ export default class HostPage {
     this.shareClientCountElem = document.getElementById('hostShareClientCount')!
     this.sharePauseElem = document.getElementById('hostSharePause')!
     this.shareVideoElem = document.getElementById('hostShareVideo') as HTMLVideoElement
+
+    // Set warning if unsupported
+    const unsupportedWarning = getScreenCaptureUnsupportedWarning()
+    if (unsupportedWarning != null) {
+      document.getElementById('hostWarning')!.innerText = unsupportedWarning
+    }
     
     // Handlers
     document.getElementById('hostRegenerate')!.onclick = () =>
