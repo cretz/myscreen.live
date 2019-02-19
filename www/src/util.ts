@@ -92,7 +92,7 @@ export function genKeyPair(): KeyPair {
 export function getScreenCaptureUnsupportedWarning(): string | null {
   const { os, browser } = detectPlatform()
   if (os == 'ios') return 'Screen capture not yet supported on iPhone/iPad'
-  if (os == 'android') return 'Screen capture not yet supported on Android Firefox' 
+  if (os == 'android') return 'Screen capture not yet supported on Android' 
   if (browser == 'ie') return 'Screen capture not supported on Internet Explorer'
   if (browser == 'edge') return 'Screen capture not yet supported on Edge'
   if (browser == 'safari') return 'Screen capture not yet supported on Safari'
