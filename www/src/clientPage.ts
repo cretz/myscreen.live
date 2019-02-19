@@ -1,5 +1,5 @@
-import { clientUrlDecoded, OfferResponse, signalRoomName, offerRequestEncrypted, genKeyPair, offerDecrypted, suggestedRTCConfig, debug, answerEncrypted, debugEnabled } from './util'
-import { PubSub, createDefaultPubSub } from './pubsub'
+import { clientUrlDecoded, OfferResponse, signalRoomName, offerRequestEncrypted, genKeyPair, offerDecrypted, suggestedRTCConfig, debug, answerEncrypted, getScreenConnectionUnsupportedWarning } from './util'
+import { createDefaultPubSub } from './pubsub'
 
 // 1 minute is our max for now which is fine
 const maxMsForAnswer = 60 * 1000
@@ -24,6 +24,10 @@ export default class ClientPage {
     this.errElem = document.getElementById('clientErr')!
     this.connectingElem = document.getElementById('clientConnecting')!
     this.videoElem = document.getElementById('clientVideo') as HTMLVideoElement
+
+    // Set warning if unsupported
+    const connectWarning = getScreenConnectionUnsupportedWarning()
+    if (connectWarning != null) document.getElementById('clientWarning')!.innerText = connectWarning
 
     // Handlers
     this.settingsButtonElem.onclick = () => {
@@ -144,7 +148,13 @@ export default class ClientPage {
         // We're only gonna wait so long
         setTimeout(() => reject(new Error('Timeout waiting to build answer')), maxMsForAnswer)
         // We'll log the state changes for now
-        peerConn.oniceconnectionstatechange = () => debug('RTC browser state change: ' + peerConn.iceConnectionState)
+        peerConn.oniceconnectionstatechange = () => {
+          debug('RTC browser state change: ' + peerConn.iceConnectionState)
+          if (peerConn.iceConnectionState == 'closed' || peerConn.iceConnectionState == 'disconnected') {
+            this.stop()
+            this.displayErr('Host closed connection')
+          }
+        }
         // A null candidate means we're done and can send offer
         peerConn.onicecandidate = async event => {
           if (event.candidate === null) {

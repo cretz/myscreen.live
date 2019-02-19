@@ -37,10 +37,8 @@ export default class HostPage {
     this.shareVideoElem = document.getElementById('hostShareVideo') as HTMLVideoElement
 
     // Set warning if unsupported
-    const unsupportedWarning = getScreenCaptureUnsupportedWarning()
-    if (unsupportedWarning != null) {
-      document.getElementById('hostWarning')!.innerText = unsupportedWarning
-    }
+    const shareWarning = getScreenCaptureUnsupportedWarning()
+    if (shareWarning != null) document.getElementById('hostWarning')!.innerText = shareWarning
     
     // Handlers
     document.getElementById('hostRegenerate')!.onclick = () =>
