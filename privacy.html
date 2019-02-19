@@ -5,16 +5,30 @@
     <title>Privacy - My screen, live!</title>
     <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32" />
     <link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16" />
+    <style type="text/css">
+      a {
+        color: #454545;
+      }
+    </style>
   </head>
   <body style="margin: 0; font-family: Open Sans,Arial; background-color: #fefefe; color: #454545; display: flex; flex-flow: column nowrap; min-height: 100vh">
     <div style="display: flex; padding: 0.3em; text-align: center; background-color: #6a776a">
       <a href="." style="color: #dddddd; text-decoration: none; align-self: center; font-size: 1.5em; font-weight: bold">myscreen.live</a>
-      <div style="margin-left: 1em; font-size: 2em; font-weight: bold; align-self: center; color: #dddddd">
+      <div style="margin-left: 1em; align-self: center; color: #dddddd">
         Privacy
       </div>
     </div>
-    <div style="flex: 1; padding: 3em">
-      TODO: content
+    <h1 style="text-align: center">Privacy Policy</h1>
+    <div style="align-self: center; flex: 1; flex-flow: column; max-width: 1000px; padding: 0 2em">
+      <p>
+        We do not collect or store any data. We do not have a server or database or anything to even store data to. We do not collect analytics. This service is a simple, static HTML+JS website hosted with <a href="https://pages.github.com/">GitHub Pages</a>. Screen sharing happens directly from browser to browser via WebRTC. There are two third-party services we do leverage:
+      </p>
+      <p>
+        This service uses Google's public STUN server at <code>stun.l.google.com:19302</code>. This may be used by your browser to obtain your externally-facing IP and nothing more. It is unknown whether Google logs requests to this server.
+      </p>
+      <p>
+        This service uses the public <a href="https://gun.eco/">Gun</a> server at <code>https://gunjs.herokuapp.com/gun</code> to do WebRTC signaling. This is just used to share initial connectivity information between two browsers and all data is encrypted. The screen video does not go through this service, the screen video is direct from browser to browser.
+      </p>
     </div>
     <div style="padding: 0.2em; background-color: #747a74; color: lightgray; display: flex; justify-content: space-evenly; flex-wrap: wrap">
       <div>

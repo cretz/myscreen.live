@@ -5,16 +5,151 @@
     <title>FAQ - My screen, live!</title>
     <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32" />
     <link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16" />
+    <style type="text/css">
+      a {
+        color: #454545;
+      }
+    </style>
   </head>
   <body style="margin: 0; font-family: Open Sans,Arial; background-color: #fefefe; color: #454545; display: flex; flex-flow: column nowrap; min-height: 100vh">
     <div style="display: flex; padding: 0.3em; text-align: center; background-color: #6a776a">
       <a href="." style="color: #dddddd; text-decoration: none; align-self: center; font-size: 1.5em; font-weight: bold">myscreen.live</a>
-      <div style="margin-left: 1em; font-size: 2em; font-weight: bold; align-self: center; color: #dddddd">
+      <div style="margin-left: 1em; align-self: center; color: #dddddd">
         FAQ
       </div>
     </div>
-    <div style="flex: 1; padding: 3em">
-      TODO: content
+    <h1 style="text-align: center">FAQ</h1>
+    <div style="align-self: center; flex: 1; flex-flow: column; max-width: 1000px; padding: 0 2em">
+      <a id="q-platforms" href="#q-platforms" style="font-size: 1.3em; font-weight: bold; text-decoration: none">
+        What platforms are supported?
+      </a>
+      <div style="padding: 0 1em 1.5em 1em">
+        <p>
+          Connection to another screen, which uses WebRTC, has been tested successfully with desktop Chrome and Firefox. It has also been tested successfully on Android with Chrome and Firefox. All other OS and browser combinations are either untested or have been tested and are known to not work (yet). 
+        </p>
+        <p>
+          Sharing screens, which uses the Screen Capture API, has been tested successfully with desktop Chrome and Firefox. No other OS/browser combinations have been shown to support screen capturing (yet), including all mobile configurations.
+        </p>
+        <i>
+          Do you have a configuration that works for either connection or sharing that is not mentioned above? Please <a href="https://github.com/cretz/myscreen.live/issues">open an issue</a> to let us know.
+        </i>
+      </div>
+      <a id="q-not-working" href="#q-not-working" style="font-size: 1.3em; font-weight: bold; text-decoration: none">
+        Why isn't this working for me?
+      </a>
+      <div style="padding: 0 1em 1.5em 1em">
+        <p>
+          This service does not work for all users. The most common reasons for failure are:
+          <ul>
+            <li>Unsupported platform - see the above FAQ entry. Many platforms do not yet support these features.</li>
+            <li>Peer connectivity - due to network connectivity setups, not every set of browsers can make direct peer-to-peer connections. Ones that cannot, some estimate as many as 30%, require a relay server called a TURN server. Since this type of server relays all of the screen video, it can be expensive to run. This free service does not offer a TURN server or the option to set your own at this time, though those features may be available in the future.</li>
+            <li>Third party outage - This uses a Google service for determining your IP and <a href="https://gun.eco/">Gun.js's</a> shared server to signal the peers. If either are down, this service will fail.</li>
+            <li>Share expired - While the maximum amount of time a screen share may technically work is 72 hours, it can be as little as 24 hours. In the future the service may support longer term screen sharing.</li>
+          </ul>
+        </p>
+        <i>
+          Do you believe your platform and network setup should work but aren't? Please <a href="https://github.com/cretz/myscreen.live/issues">open an issue</a> with browser logs to let us know.
+        </i>
+      </div>
+      <a id="q-how-secure" href="#q-how-secure" style="font-size: 1.3em; font-weight: bold; text-decoration: none">
+        How secure is this?
+      </a>
+      <div style="padding: 0 1em 1.5em 1em">
+        <p>
+          This service is reasonably secure, assuming your phrase is fairly unique or a strong password is used. All screen video is end-to-end encrypted and the mechanism used to find the peer is also encrypted. It is possible for another to see your screen if you are sharing it, and they have the password (or you aren't using one), and they guess the phrase. For more details on how the service works, see the high-level and low-level explanations of how the service works below.
+        </p>
+      </div>
+      <a id="q-download-local" href="#q-download-local" style="font-size: 1.3em; font-weight: bold; text-decoration: none">
+        Can I download and run this locally?
+      </a>
+      <div style="padding: 0 1em 1.5em 1em">
+        <p>
+          Sure! This service is a simple set of HTML and JS hosted on <a href="https://pages.github.com/">GitHub Pages</a>. You can download a <a href="https://github.com/cretz/myscreen.live/archive/gh-pages.zip">zip</a> or <a href="https://github.com/cretz/myscreen.live/archive/gh-pages.tar.gz">tarball</a> of the current site, extract it, and open <code>myscreen.live-gh-pages/index.html</code> in your browser to get the same site experience.
+        </p>
+        <p>
+          If you want to hack on it and/or build it yourself, see the <a href="https://github.com/cretz/myscreen.live">source code on GitHub</a>.
+        </p>
+        <i>
+          Note, running locally is still the same site and still uses the external Google and Gun.js servers for IP determination and signaling respectively.
+        </i>
+      </div>
+      <a id="q-how-it-works-overview" href="#q-how-it-works-overview" style="font-size: 1.3em; font-weight: bold; text-decoration: none">
+        How does this work at a high level?
+      </a>
+      <div style="padding: 0 1em 1.5em 1em">
+        <p>
+          In general, this relies on <a href="https://gun.eco/">Gun.js</a> to signal <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API">WebRTC</a> peers to share a video stream started via the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Screen_Capture_API">Screen Capture API</a>.
+        </p>
+        <p>
+          For the user sharing their screen:
+          <ul>
+            <li>They go to the screen share page which has a default phrase and empty password.</li>
+            <li>They optionally change the phrase and/or enter a password and click the share button.</li>
+            <li>The browser then starts a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Screen_Capture_API">Screen Capture</a> session by asking the user what screen to share.</li>
+            <li>Once chosen, the screen is set to a little preview video and, based on the phrase and password, the browser listens for requests by users wanting to connect.</li>
+            <li>The user then sends the phrase and password to anyone they want to connect.</li>
+            <li>Once a connection request happens, a WebRTC peer connection is created with and some data to send back to the connecting user on how to connect.</li>
+            <li>The connection information is sent back to the connecting user who in turn sends back some connection info of their own.</li>
+            <li>A WebRTC connection is then established with this information sending the screen video directly to the connecting user.</li>
+          </ul>
+        </p>
+        <p>
+          For the user connecting to another screen:
+          <ul>
+            <li>Upon receiving the phrase and password to connect, the user enters it into the connection page.</li>
+            <li>Based on the phrase and password, the browser sends a connection request to the listening screen sharing user.</li>
+            <li>The browser receives the WebRTC connection info from the sharing user and starts a WebRTC connection.</li>
+            <li>The browser sends its own connection info back to the screen sharing user and proceeds to connect to the peer.</li>
+            <li>The browser receives the screen video feed from the sharing user and shows the video.</li>
+          </ul>
+        </p>
+      </div>
+      <a id="q-how-it-works-detail" href="#q-how-it-works-detail" style="font-size: 1.3em; font-weight: bold; text-decoration: none">
+        How does this work in more technical detail?
+      </a>
+      <div style="padding: 0 1em 1.5em 1em">
+        <p>
+          For the user sharing their screen:
+          <ul>
+            <li>The user visits <code>#host</code> and is presented with a form requesting a phrase and optional password.</li>
+            <li>The default phrase, which can be regenerated via a link, is in the form of "<code>&lt;2-33&gt; &lt;random 1 of 128 adjectives&gt; &lt;random 1 of 128 animals&gt; &lt;random 1 of 64 verbs&gt; &lt;random 1 of 128 adverbs&gt;</code>" which has ~4 billion possibilities as described <a href="https://blog.asana.com/2011/09/6-sad-squid-snuggle-softly/">in this post</a>. Randomization is via browser crypto random via <a href="https://github.com/dchest/tweetnacl-js#naclrandombyteslength">TweetNaCl.js</a>.</li>
+            <li>Once share is clicked, <a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia">getDisplayMedia</a> is called (with cursor visible and no audio) to request the user pick a screen or application feed to share which is set as the stream of the preview video element.</li>
+            <li>A URL with the phrase in the URL fragment is provided to give to the connecting user (e.g. https://myscreen.live/#some-phrase).</li>
+            <li>Then the page subscribes to 3 pubsub queues named after the phrase and the date. Specifically, it subscribes to queues named <code>base64(sha512(phrase + date))</code> for dates of yesterday, today, and tomorrow. Currently the pubsub implementation is <a href="https://gun.eco/">Gun.js</a>.</li>
+            <li>Once a successfully decrypted offer request containing the other user's public key is received (see connecting part below for offer request encryption), a NaCl box key pair is generated for the signaling session. It is important to note that unrecognized messages/requests are simply ignored, there is no error response.</li>
+            <li>A <a href="https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection">RTCPeerConnection</a> is created with the only ICE server as the Google STUN server at <code>stun.l.google.com:19302</code>.</li>
+            <li>The screen share media stream is added to the connection and an offer is created and set as the WebRTC local description.</li>
+            <li>Once the candidates are collected, the offer is NaCl-box encrypted with the other user's public key and newly created private key. It is combined with the newly created public key and sent back awaiting an answer for up to one minute.</li>
+            <li>Once a successfully decrypted answer is received for a pending answer (see connecting part below for answer encryption), it is set as the WebRTC remote description which begins the WebRTC handshake. It is important to note that unrecognized messages/answers are simply ignored, there is no error response.</li>
+            <li>The connected peer counter is incremented and the video is shared until it is stopped or the peer disconnects.</li>
+          </ul>
+        </p>
+        <p>
+          For the user connecting to another screen:
+          <ul>
+            <li>The URL with the phrase, e.g. https://myscreen.live/#some-phrase, is visited.</li>
+            <li>The phrase is decoded and put in the connection form along with the password field to populate if required.</li>
+            <li>Once connect is clicked, a NaCl box key pair is generated for the signaling session.</li>
+            <li>A NaCl-secretbox-encrypted offer request is created containing the newly created public key. The encryption key is <code>sha512(date + phrase + password)</code> (may have empty password).</li>
+            <li>The offer request is published to the signaling pubsub with the queue name <code>base64(sha512(phrase + date))</code>, and waits up to a minute for an offer.</li>
+            <li>Upon successful decryption of an offer and other user's public key (see user sharing above for offer encryption), a <a href="https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection">RTCPeerConnection</a> is created with the remote description set as the offer. It is important to note that unrecognized messages/offers are simply ignored, there is no error response.</li>
+            <li>An answer is created and set as the local description of the connection which sets it as ready to begin the handshake.</li>
+            <li>Once candidates have been gathered, the answer is NaCl-box encrypted with the session private key and other user's public key, and sent back.</li>
+            <li>Once the WebRTC handshake is complete, the screen sharing video stream is set on the video and the video is adjusted to match the stream.</li>
+          </ul>
+        </p>
+      </div>
+      <a id="q-why" href="#q-why" style="font-size: 1.3em; font-weight: bold; color: #454545; text-decoration: none">
+        Why was this built?
+      </a>
+      <div style="padding: 0 1em 1.5em 1em">
+        <p>
+          Fun. And selfishly, once I saw these features are now deployed in stable browsers, I wanted to be able to quickly share a view of my screen without downloading anything. I also want easy remote screen control too, so I am building a downloadable tool for that (connection side won't need the tool, only the sharing side).
+        </p>
+        <p>
+          One of the goals is to make it easy to do just a quick screen share in situations such as family members with computer trouble or coworkers wanting to show something real quick.
+        </p>
+      </div>
     </div>
     <div style="padding: 0.2em; background-color: #747a74; color: lightgray; display: flex; justify-content: space-evenly; flex-wrap: wrap">
       <div>

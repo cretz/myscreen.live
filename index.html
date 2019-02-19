@@ -33,7 +33,7 @@
       
       <div style="padding: 1em; text-align: center; font-size: 1.3em">
         I want to...
-        <div style="color: red; font-size: small; font-weight: bold">(this is a work in progress preview)</div>
+        <div style="font-style: italic; color: gray; font-size: small">(only known to work with Firefox and Chrome currently)</div>
       </div>
       
       <div style="flex: 1; display: flex; flex-flow: column; align-items: center">
@@ -44,7 +44,10 @@
             <input id="homePhrase" type="text" placeholder="(e.g. 25 angry astronauts floating aimlessly)" style="box-sizing: border-box; width: calc(100% - 0.5em); padding: 0.2em; font-size: 1.5em; border: 1px solid #ced4da; border-radius: .25rem;">
           </div>
           <div style="display: flex; justify-content: space-around; flex-wrap: wrap">
-            <div style="margin-left: 0.4em; flex: 1; color: gray; white-space: nowrap">No direct link? Enter phrase above.</div>
+            <div style="margin-left: 0.4em; flex: 1; color: gray; white-space: nowrap">
+              No direct link? Enter phrase above.
+              <div id="homeConnectWarning" style="color: red; font-style: italic"></div>
+            </div>
             <a id="homeConnect" href="#" style="margin: 0.4em; color: #454545; text-decoration: none; background-color: #acc6ef; padding: 0.6em 3em; font-weight: bold; font-size: 1.5em; border-radius: 0.25em">Connect</a>
           </div>
         </div>
@@ -56,7 +59,10 @@
         <div style="padding: 0.75em; min-width: 40vw">
           <div style="font-size: 1.5em; font-weight: bold">Share a view of my screen</div>
           <div style="display: flex; justify-content: space-around; flex-wrap: wrap">
-            <div style="margin-left: 0.4em; flex: 1; color: gray; white-space: nowrap">No download needed, click and share away.</div>
+            <div style="margin-left: 0.4em; flex: 1; color: gray; white-space: nowrap">
+              No download needed, click and share away.
+              <div id="homeShareWarning" style="color: red; font-style: italic"></div>
+            </div>
             <a href="#host" style="margin: 0.4em; color: #454545; text-decoration: none; background-color: #acc6ef; padding: 0.6em 3em; font-weight: bold; font-size: 1.5em; border-radius: 0.25em">Start Sharing</a>
           </div>
         </div>
@@ -69,7 +75,7 @@
           <div style="font-size: 1.5em; font-weight: bold">Give control of my screen</div>
           <div style="display: flex; justify-content: space-around; flex-wrap: wrap">
             <div style="margin-left: 0.4em; margin-bottom: 3em; flex: 1; color: gray">
-              <i>*This is not yet supported, coming soon*</i>
+              <i>*This is not yet supported, coming soon. Will require a download.*</i>
             </div>
             <!--
             <div style="margin-left: 0.4em; flex: 1; color: gray">
@@ -103,6 +109,7 @@
       <div id="clientSettings" style="display: flex; flex-flow: column; align-self: flex-start; background-color: #eee; border: 3px double">
         <div style="padding: 0.2em; min-width: 40vw">
           <div style="font-size: 2em; font-weight: bold; text-align: center">Screen Connect Settings</div>
+          <div id="clientWarning" style="color: red; font-style: italic; text-align: center"></div>
         </div>
         <div style="padding: 1em; display: flex; flex-flow: column nowrap; min-width: 40vw">
           <div style="margin: 1em">
@@ -146,11 +153,12 @@
           Share Your Screen
         </div>
       </div>
-      <div id="hostErr" style="display: none; color: red; font-size: 1.5em; font-weight: bold; text-align: center"></div>
       <div id="hostSettings" style="flex: 1; display: flex; flex-flow: column; align-items: center">
         <div style="padding: 0.2em; min-width: 40vw">
           <div style="font-size: 2em; font-weight: bold; text-align: center">Screen Share Settings</div>
         </div>
+        <div id="hostErr" style="display: none; color: red; font-size: 1.5em; font-weight: bold; text-align: center"></div>
+        <div id="hostWarning" style="color: red; font-style: italic"></div>
         <div style="padding: 1em; display: flex; flex-flow: column nowrap; min-width: 40vw">
           <div style="margin: 1em">
             <div style="display: flex">
