@@ -12,6 +12,7 @@ import HostPage from './hostPage'
   const hostPage = new HostPage()
 
   function runPage(firstRun: Boolean) {
+    homePage.reset()
     if (firstRun) {
       // Ref: https://github.com/webrtcHacks/adapter/pull/841
       // TODO: remove when 66 is shipped: https://bugzilla.mozilla.org/show_bug.cgi?id=1321221
@@ -19,9 +20,9 @@ import HostPage from './hostPage'
         adapter.browserShim!.shimGetDisplayMedia!(window, 'screen')
     } else {
       clientPage.reset()
-      homePage.reset()
       hostPage.reset()
     }
+
     // If it's an empty hash, it's home
     if (!window.location.hash) homePage.show()
     else if (window.location.hash == '#host') hostPage.show()
