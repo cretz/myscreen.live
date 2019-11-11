@@ -17,7 +17,7 @@
     "webpack-cli": "^3.2.3"
   },
   "dependencies": {
-    "gun": "^0.9.9999991",
+    "gun": "^0.2019.930",
     "tweetnacl": "^1.0.1",
     "webrtc-adapter": "^7.2.0"
   }
